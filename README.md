@@ -1,3 +1,4 @@
+[![ci](https://github.com/xj16/edgeguard/actions/workflows/ci.yml/badge.svg)](https://github.com/xj16/edgeguard/actions/workflows/ci.yml)
 # edgeguard 🛡️⚡️ (Deno TypeScript)
 
 A minimal **edge-friendly API gateway** built on **Deno**:
