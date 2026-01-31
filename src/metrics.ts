@@ -54,7 +54,9 @@ export class Metrics {
       const [method, path, statusStr] = key.split("|");
       const status = Number(statusStr);
       lines.push(
-        `edgeguard_requests_total{method="${esc(method)}",path="${esc(path)}",status="${status}"} ${val}`,
+        `edgeguard_requests_total{method="${esc(method)}",path="${
+          esc(path)
+        }",status="${status}"} ${val}`,
       );
     }
 
@@ -72,19 +74,29 @@ export class Metrics {
       const p99 = quantile(sorted, 0.99);
 
       lines.push(
-        `edgeguard_request_duration_seconds{method="${esc(method)}",path="${esc(path)}",quantile="0.5"} ${p50}`,
+        `edgeguard_request_duration_seconds{method="${esc(method)}",path="${
+          esc(path)
+        }",quantile="0.5"} ${p50}`,
       );
       lines.push(
-        `edgeguard_request_duration_seconds{method="${esc(method)}",path="${esc(path)}",quantile="0.9"} ${p90}`,
+        `edgeguard_request_duration_seconds{method="${esc(method)}",path="${
+          esc(path)
+        }",quantile="0.9"} ${p90}`,
       );
       lines.push(
-        `edgeguard_request_duration_seconds{method="${esc(method)}",path="${esc(path)}",quantile="0.99"} ${p99}`,
+        `edgeguard_request_duration_seconds{method="${esc(method)}",path="${
+          esc(path)
+        }",quantile="0.99"} ${p99}`,
       );
       lines.push(
-        `edgeguard_request_duration_seconds_sum{method="${esc(method)}",path="${esc(path)}"} ${sum}`,
+        `edgeguard_request_duration_seconds_sum{method="${esc(method)}",path="${
+          esc(path)
+        }"} ${sum}`,
       );
       lines.push(
-        `edgeguard_request_duration_seconds_count{method="${esc(method)}",path="${esc(path)}"} ${count}`,
+        `edgeguard_request_duration_seconds_count{method="${
+          esc(method)
+        }",path="${esc(path)}"} ${count}`,
       );
     }
 

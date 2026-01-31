@@ -108,7 +108,10 @@ Deno.serve({ port: PORT }, async (req) => {
 
   metrics.observeRequest(r.method, path, 404, performance.now() - start);
   log.info("request", { rid, method: r.method, path, status: 404, ip });
-  return new Response("not found\n", { status: 404, headers: { "X-Request-Id": rid } });
+  return new Response("not found\n", {
+    status: 404,
+    headers: { "X-Request-Id": rid },
+  });
 });
 
 function clientIp(req: Request): string | null {
