@@ -1,0 +1,14 @@
+{
+  "name": "edgeguard",
+  "version": "0.1.0",
+  "tasks": {
+    "dev": "deno run --allow-net --allow-env --watch main.ts",
+    "start": "deno run --allow-net --allow-env main.ts",
+    "fmt": "deno fmt",
+    "lint": "deno lint",
+    "test": "deno test -A --no-check=remote",
+    "check": "deno check main.ts",
+    "ci": "deno fmt --check && deno lint && deno test -A --no-check=remote",
+    "token": "deno run --allow-env tools/mint_token.ts"
+  }
+}
