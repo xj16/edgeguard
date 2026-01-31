@@ -18,18 +18,17 @@ log.info("starting edgeguard", { port: PORT, rps: RPS, burst: BURST });
 
 Deno.serve({ port: PORT }, async (req) => {
   const start = performance.now();
-  const ridWrapped = withRequestId(req);
-  const r = ridWrapped.req;
-  const rid = ridWrapped.requestId;
+  const { req: r, requestId: rid } = withRequestId(req);
 
   const url = new URL(r.url);
   const path = url.pathname;
 
-  // basic routing
   if (path === "/healthz") {
     metrics.observeRequest(r.method, path, 200, performance.now() - start);
-    return new Response("ok
-", { status: 200, headers: { "X-Request-Id": rid } });
+    return new Response("ok\n", {
+      status: 200,
+      headers: { "X-Request-Id": rid },
+    });
   }
 
   if (path === "/metrics") {
@@ -44,14 +43,12 @@ Deno.serve({ port: PORT }, async (req) => {
     });
   }
 
-  // rate limiting (per client ip)
   const ip = clientIp(r) ?? "unknown";
   const allowed = limiter.allow(ip);
   if (!allowed.ok) {
     metrics.observeRequest(r.method, path, 429, performance.now() - start);
     log.warn("rate_limited", { rid, method: r.method, path, ip });
-    return new Response("rate limited
-", {
+    return new Response("rate limited\n", {
       status: 429,
       headers: {
         "X-Request-Id": rid,
@@ -60,49 +57,61 @@ Deno.serve({ port: PORT }, async (req) => {
     });
   }
 
-  // protected API routes
   if (path.startsWith("/api/")) {
     const auth = r.headers.get("authorization") ?? "";
-    const token = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : "";
+    const token = auth.toLowerCase().startsWith("bearer ")
+      ? auth.slice(7).trim()
+      : "";
+
     if (!token) {
       metrics.observeRequest(r.method, path, 401, performance.now() - start);
-      return new Response("missing bearer token
-", { status: 401, headers: { "X-Request-Id": rid } });
+      return new Response("missing bearer token\n", {
+        status: 401,
+        headers: { "X-Request-Id": rid },
+      });
     }
 
     const ver = await verifyHS256(token, JWT_SECRET);
     if (!ver.ok) {
       metrics.observeRequest(r.method, path, 401, performance.now() - start);
-      return new Response("invalid token
-", { status: 401, headers: { "X-Request-Id": rid } });
+      return new Response("invalid token\n", {
+        status: 401,
+        headers: { "X-Request-Id": rid },
+      });
     }
 
-    // simple handler
     if (path === "/api/hello") {
-      const body = JSON.stringify({ ok: true, hello: "world", sub: ver.payload.sub ?? null });
+      const body = JSON.stringify({
+        ok: true,
+        hello: "world",
+        sub: ver.payload.sub ?? null,
+      });
+
       metrics.observeRequest(r.method, path, 200, performance.now() - start);
       log.info("request", { rid, method: r.method, path, status: 200, ip });
-      return new Response(body + "
-", {
+
+      return new Response(body + "\n", {
         status: 200,
-        headers: { "content-type": "application/json; charset=utf-8", "X-Request-Id": rid },
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+          "X-Request-Id": rid,
+        },
       });
     }
 
     metrics.observeRequest(r.method, path, 404, performance.now() - start);
-    return new Response("not found
-", { status: 404, headers: { "X-Request-Id": rid } });
+    return new Response("not found\n", {
+      status: 404,
+      headers: { "X-Request-Id": rid },
+    });
   }
 
-  // default
   metrics.observeRequest(r.method, path, 404, performance.now() - start);
   log.info("request", { rid, method: r.method, path, status: 404, ip });
-  return new Response("not found
-", { status: 404, headers: { "X-Request-Id": rid } });
+  return new Response("not found\n", { status: 404, headers: { "X-Request-Id": rid } });
 });
 
 function clientIp(req: Request): string | null {
-  // Prefer trusted proxy headers when present.
   const xff = req.headers.get("x-forwarded-for");
   if (xff) return xff.split(",")[0]?.trim() ?? null;
 

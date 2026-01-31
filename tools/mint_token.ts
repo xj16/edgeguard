@@ -6,7 +6,7 @@ const now = Math.floor(Date.now() / 1000);
 const payload = {
   sub: "demo-user",
   iat: now,
-  exp: now + 60 * 60, // 1h
+  exp: now + 60 * 60,
 };
 
 const token = await mintHS256(payload, secret);

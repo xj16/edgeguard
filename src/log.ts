@@ -17,7 +17,11 @@ const LEVELS: Record<LogLevel, number> = {
 export function createLogger(level: LogLevel): Logger {
   const threshold = LEVELS[level] ?? LEVELS.info;
 
-  const emit = (lvl: LogLevel, msg: string, fields: Record<string, unknown> = {}) => {
+  const emit = (
+    lvl: LogLevel,
+    msg: string,
+    fields: Record<string, unknown> = {},
+  ) => {
     if (LEVELS[lvl] < threshold) return;
 
     const line = {
@@ -26,7 +30,6 @@ export function createLogger(level: LogLevel): Logger {
       msg,
       ...fields,
     };
-    // Structured JSON log
     // deno-lint-ignore no-console
     console.log(JSON.stringify(line));
   };

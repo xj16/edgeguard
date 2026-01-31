@@ -1,7 +1,5 @@
 export function b64urlDecode(input: string): Uint8Array {
-  // base64url -> base64
   let s = input.replace(/-/g, "+").replace(/_/g, "/");
-  // pad
   while (s.length % 4 !== 0) s += "=";
 
   const raw = atob(s);

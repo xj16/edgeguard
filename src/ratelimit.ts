@@ -1,11 +1,14 @@
 type Bucket = { tokens: number; lastMs: number };
 
 export type RateLimitConfig = {
-  rps: number;   // refill rate per second
+  rps: number; // refill rate per second
   burst: number; // max tokens
 };
 
-export type AllowResult = { ok: true } | { ok: false; retryAfterSeconds: number };
+export type AllowResult = { ok: true } | {
+  ok: false;
+  retryAfterSeconds: number;
+};
 
 export class RateLimiter {
   private cfg: RateLimitConfig;
@@ -23,7 +26,6 @@ export class RateLimiter {
       this.buckets.set(key, b);
     }
 
-    // refill
     const elapsed = (now - b.lastMs) / 1000;
     b.tokens = Math.min(this.cfg.burst, b.tokens + elapsed * this.cfg.rps);
     b.lastMs = now;

@@ -1,10 +1,17 @@
 import { b64urlDecode, b64urlEncode } from "./base64url.ts";
 
-export type JwtVerifyOk = { ok: true; header: Record<string, unknown>; payload: Record<string, unknown> };
+export type JwtVerifyOk = {
+  ok: true;
+  header: Record<string, unknown>;
+  payload: Record<string, unknown>;
+};
 export type JwtVerifyErr = { ok: false; reason: string };
 export type JwtVerifyResult = JwtVerifyOk | JwtVerifyErr;
 
-export async function verifyHS256(token: string, secret: string): Promise<JwtVerifyResult> {
+export async function verifyHS256(
+  token: string,
+  secret: string,
+): Promise<JwtVerifyResult> {
   const parts = token.split(".");
   if (parts.length !== 3) return { ok: false, reason: "bad_format" };
 
@@ -35,13 +42,20 @@ export async function verifyHS256(token: string, secret: string): Promise<JwtVer
   if (!ok) return { ok: false, reason: "bad_sig" };
 
   const now = Math.floor(Date.now() / 1000);
-  if (typeof payload.exp === "number" && now >= payload.exp) return { ok: false, reason: "expired" };
-  if (typeof payload.nbf === "number" && now < payload.nbf) return { ok: false, reason: "not_before" };
+  if (typeof payload.exp === "number" && now >= payload.exp) {
+    return { ok: false, reason: "expired" };
+  }
+  if (typeof payload.nbf === "number" && now < payload.nbf) {
+    return { ok: false, reason: "not_before" };
+  }
 
   return { ok: true, header, payload };
 }
 
-export async function mintHS256(payload: Record<string, unknown>, secret: string): Promise<string> {
+export async function mintHS256(
+  payload: Record<string, unknown>,
+  secret: string,
+): Promise<string> {
   const header = { alg: "HS256", typ: "JWT" };
 
   const h64 = b64urlEncode(new TextEncoder().encode(JSON.stringify(header)));
